@@ -12,6 +12,7 @@ import logging
 import math
 
 import requests
+
 from app.config import settings
 from app.schemas.sentiment import SentimentResult
 from app.services.scoring.base import BaseSentimentScorer

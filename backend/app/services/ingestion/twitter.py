@@ -7,6 +7,7 @@ import logging
 from datetime import datetime, timedelta, timezone
 
 import tweepy
+
 from app.config import settings
 from app.services.ingestion.base import (
     AuthorMetrics,

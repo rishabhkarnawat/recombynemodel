@@ -6,6 +6,8 @@ import asyncio
 from datetime import datetime, timedelta, timezone
 
 import praw
+from prawcore import PrawcoreException
+
 from app.config import settings
 from app.services.ingestion.base import (
     AuthorMetrics,
@@ -14,7 +16,6 @@ from app.services.ingestion.base import (
     RawPost,
 )
 from app.utils.errors import RecombyneFetchError, RecombynKeyError
-from prawcore import PrawcoreException
 
 
 class RedditIngester(BaseIngester):

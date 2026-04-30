@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import logging
 
+from fastapi import APIRouter, BackgroundTasks, HTTPException
+
 from app.schemas.post import (
     QueryRequest,
     WatchlistEntry,
@@ -19,7 +21,6 @@ from app.services.scoring.engagement_weighter import EngagementWeighter
 from app.services.scoring.entity_extractor import EntityExtractor
 from app.services.scoring.roberta import RoBERTaSentimentScorer
 from app.utils.store import history_store, watchlist_store
-from fastapi import APIRouter, BackgroundTasks, HTTPException
 
 logger = logging.getLogger(__name__)
 

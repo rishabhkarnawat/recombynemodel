@@ -3,13 +3,14 @@
 from datetime import datetime
 from typing import Literal
 
+from pydantic import BaseModel, Field
+
 from app.schemas.sentiment import (
     CoMention,
     DivergenceFlag,
     TimelineBucket,
     WeightedResult,
 )
-from pydantic import BaseModel, Field
 
 
 class QueryRequest(BaseModel):

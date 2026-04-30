@@ -2,6 +2,10 @@
 
 from __future__ import annotations
 
+from fastapi import FastAPI, Request
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+
 from app.config import settings
 from app.routers import health, ingest, query, sentiment, watchlist
 from app.utils.errors import (
@@ -12,9 +16,6 @@ from app.utils.errors import (
     RecombynKeyError,
     RecombynRateLimitError,
 )
-from fastapi import FastAPI, Request
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
 
 app = FastAPI(
     title="Recombyne API",

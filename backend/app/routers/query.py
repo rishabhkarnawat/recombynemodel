@@ -4,6 +4,8 @@ from datetime import datetime, timezone
 from time import perf_counter
 from uuid import uuid4
 
+from fastapi import APIRouter, Body, HTTPException
+
 from app.schemas.post import (
     CachedQueryResponse,
     HistoryResponse,
@@ -23,7 +25,6 @@ from app.services.scoring.roberta import RoBERTaSentimentScorer
 from app.utils.cache import query_cache
 from app.utils.errors import RecombyneScoringError
 from app.utils.store import history_store
-from fastapi import APIRouter, Body, HTTPException
 
 router = APIRouter(
     prefix="/api/query",

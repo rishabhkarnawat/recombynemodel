@@ -1,8 +1,9 @@
 """Topic model placeholder for tracked queries."""
 
-from app.models.sentiment import Base
 from sqlalchemy import String
 from sqlalchemy.orm import Mapped, mapped_column
+
+from app.models.sentiment import Base
 
 
 class Topic(Base):

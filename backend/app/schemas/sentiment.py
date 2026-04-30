@@ -3,8 +3,9 @@
 from datetime import datetime
 from typing import Literal
 
-from app.services.ingestion.base import RawPost
 from pydantic import BaseModel, Field
+
+from app.services.ingestion.base import RawPost
 
 
 class SentimentResult(BaseModel):

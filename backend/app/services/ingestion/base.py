@@ -5,8 +5,9 @@ from collections.abc import Callable
 from datetime import datetime
 from typing import Literal
 
-from app.utils.errors import RecombyneFetchError  # re-exported for ingesters
 from pydantic import BaseModel, Field
+
+from app.utils.errors import RecombyneFetchError  # re-exported for ingesters
 
 __all__ = [
     "AuthorMetrics",

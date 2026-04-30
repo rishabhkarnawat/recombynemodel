@@ -1,5 +1,7 @@
 """Health and key validation routes."""
 
+from fastapi import APIRouter
+
 from app.config import settings
 from app.schemas.post import (
     HealthStatus,
@@ -10,7 +12,6 @@ from app.schemas.post import (
 from app.services.ingestion.reddit import RedditIngester
 from app.services.ingestion.twitter import TwitterIngester
 from app.services.scoring.roberta import RoBERTaSentimentScorer
-from fastapi import APIRouter
 
 router = APIRouter(tags=["health"])
 

@@ -23,7 +23,6 @@ from app.services.aggregation.divergence import DivergenceDetector
 from app.services.ingestion.base import EngagementMetrics, RawPost
 from app.services.scoring.engagement_weighter import EngagementWeighter
 from app.utils.store import history_store
-
 from scripts.generate_mock_posts import generate_posts
 
 TOPICS = [
