@@ -2,7 +2,7 @@
 
 **Signal from the scatter.**
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![License: Non--Commercial](https://img.shields.io/badge/License-Non--Commercial-orange.svg)](LICENSE)
 
 Recombyne is a real-time engagement-weighted sentiment intelligence platform that ingests public conversation from Twitter and Reddit, scores each post with transformer-based NLP, and weights sentiment by earned engagement so analysts can separate high-impact signal from low-visibility noise.
 
@@ -51,3 +51,8 @@ We welcome pull requests for ingestion improvements, weighting research, visuali
 - [ ] Historical backtesting workspace
 - [ ] Configurable weighting coefficients per domain
 - [ ] User-defined alert subscriptions
+
+## License
+
+Recombyne is released under the `Recombyne Non-Commercial Trial and Research License v1.0`.
+Commercial use is not allowed without prior written permission.
