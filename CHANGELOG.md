@@ -12,3 +12,12 @@ appends a new entry to this file on every push to `main`.
 ### Docs
 
 - Document repository as open source under the MIT license
+## [2026-04-30]
+
+### Features
+- Phase 2 — algorithm refinement, automation, and data quality
+- initial Recombyne platform foundation
+
+### Docs
+- update Recombyne non-commercial license terms
+
