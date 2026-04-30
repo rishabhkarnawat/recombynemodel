@@ -32,3 +32,15 @@ appends a new entry to this file on every push to `main`.
 - update CHANGELOG.md [skip ci]
 - update Recombyne non-commercial license terms
 
+## [2026-04-30]
+
+### Features
+- Phase 2 — algorithm refinement, automation, and data quality
+- initial Recombyne platform foundation
+
+### Docs
+- update CHANGELOG.md [skip ci]
+- refresh README progress and add starter issues backlog
+- update CHANGELOG.md [skip ci]
+- update Recombyne non-commercial license terms
+
