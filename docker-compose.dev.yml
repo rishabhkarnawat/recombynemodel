@@ -1,0 +1,17 @@
+services:
+  backend:
+    environment:
+      - ENVIRONMENT=development
+      - UVICORN_LOG_LEVEL=debug
+    volumes:
+      - ./backend:/app
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload --log-level debug
+
+  frontend:
+    environment:
+      - NODE_ENV=development
+      - NEXT_PUBLIC_API_BASE_URL=http://localhost:8000
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    command: npm run dev
