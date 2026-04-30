@@ -14,6 +14,9 @@ class SentimentResult(BaseModel):
     score: float = Field(ge=-1.0, le=1.0)
     confidence: float = Field(ge=0.0, le=1.0)
     raw_logits: list[float]
+    negation_detected: bool = False
+    sarcasm_risk: float = Field(default=0.0, ge=0.0, le=1.0)
+    is_english: bool = True
 
 
 class TopSignal(BaseModel):
@@ -23,6 +26,31 @@ class TopSignal(BaseModel):
     sentiment: SentimentResult
     weight: float
     signal_strength: float
+
+
+class DivergenceFlag(BaseModel):
+    """Structured divergence flag describing why and how strongly we noticed it."""
+
+    type: Literal[
+        "weighted_vs_raw",
+        "platform",
+        "temporal",
+        "volume",
+    ]
+    severity: Literal["low", "medium", "high"]
+    explanation: str
+
+
+class CoMention(BaseModel):
+    """Entity co-mentioned alongside the queried topic."""
+
+    entity: str
+    mention_count: int
+    weighted_mention_count: float
+    avg_sentiment_when_mentioned: float
+    sentiment_direction: Literal[
+        "positive_association", "negative_association", "neutral"
+    ]
 
 
 class WeightedResult(BaseModel):
@@ -36,6 +64,8 @@ class WeightedResult(BaseModel):
     divergence_flag: bool
     divergence_direction: Literal["weighted_positive", "weighted_negative", "aligned"]
     top_signals: list[TopSignal]
+    low_confidence_post_count: int = 0
+    non_english_post_count: int = 0
 
 
 class TimelineBucket(BaseModel):

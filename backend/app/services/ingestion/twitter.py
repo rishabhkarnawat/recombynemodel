@@ -8,8 +8,17 @@ from datetime import datetime, timedelta, timezone
 
 import tweepy
 from app.config import settings
-from app.services.ingestion.base import (BaseIngester, EngagementMetrics,
-                                         RawPost, RecombyneFetchError)
+from app.services.ingestion.base import (
+    AuthorMetrics,
+    BaseIngester,
+    EngagementMetrics,
+    RawPost,
+)
+from app.utils.errors import (
+    RecombyneFetchError,
+    RecombynKeyError,
+    RecombynRateLimitError,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -31,8 +40,9 @@ class TwitterIngester(BaseIngester):
         """Return API client or raise a clear credential error."""
 
         if self._client is None:
-            raise RecombyneFetchError(
-                "Twitter credentials are missing. Set TWITTER_BEARER_TOKEN in .env."
+            raise RecombynKeyError(
+                "Twitter credentials are missing. Set TWITTER_BEARER_TOKEN in .env.",
+                code="TWITTER_KEY_MISSING",
             )
         return self._client
 
@@ -54,15 +64,49 @@ class TwitterIngester(BaseIngester):
                         "author_id",
                         "created_at",
                         "entities",
+                        "lang",
+                    ],
+                    expansions=["author_id"],
+                    user_fields=[
+                        "public_metrics",
+                        "verified",
+                        "created_at",
                     ],
                     start_time=start_time,
                     max_results=min(100, max(10, limit)),
                 )
                 logger.info("Twitter rate headers: %s", getattr(response, "meta", {}))
                 tweets = response.data or []
+                user_lookup: dict[str, AuthorMetrics] = {}
+                includes = getattr(response, "includes", None) or {}
+                for user in includes.get("users", []) or []:
+                    user_metrics = getattr(user, "public_metrics", None) or {}
+                    created_at = getattr(user, "created_at", None)
+                    age_days = None
+                    if created_at is not None:
+                        age_days = max(
+                            0,
+                            int((datetime.now(timezone.utc) - created_at).days),
+                        )
+                    user_lookup[str(user.id)] = AuthorMetrics(
+                        followers_count=int(
+                            user_metrics.get("followers_count", 0) or 0
+                        ),
+                        following_count=int(
+                            user_metrics.get("following_count", 0) or 0
+                        ),
+                        tweet_count=int(user_metrics.get("tweet_count", 0) or 0),
+                        account_age_days=age_days,
+                        verified=bool(getattr(user, "verified", False) or False),
+                    )
+
                 normalized: list[RawPost] = []
                 for tweet in tweets[:limit]:
                     metrics = tweet.public_metrics or {}
+                    author_metrics = user_lookup.get(
+                        str(getattr(tweet, "author_id", ""))
+                    )
+                    lang = getattr(tweet, "lang", None)
                     normalized.append(
                         RawPost(
                             id=str(tweet.id),
@@ -82,23 +126,42 @@ class TwitterIngester(BaseIngester):
                                 ),
                                 upvote_ratio=None,
                             ),
-                            metadata={"entities": getattr(tweet, "entities", None)},
+                            author_metrics=author_metrics,
+                            is_english=(lang == "en") if lang else None,
+                            metadata={
+                                "entities": getattr(tweet, "entities", None),
+                                "lang": lang,
+                            },
                         )
                     )
                 return normalized
             except tweepy.Unauthorized as exc:
-                raise RecombyneFetchError(
-                    "Twitter credentials are invalid or expired."
+                raise RecombynKeyError(
+                    "Twitter credentials are invalid or expired.",
+                    code="TWITTER_AUTH_FAILED",
                 ) from exc
-            except tweepy.TooManyRequests:
+            except tweepy.TooManyRequests as exc:
                 logger.warning(
                     "Twitter rate limit hit. retry=%s sleep=%s", attempts, wait_seconds
                 )
+                if attempts >= 5:
+                    raise RecombynRateLimitError(
+                        "Twitter rate limit exceeded after retries.",
+                        retry_after=int(wait_seconds),
+                        code="TWITTER_RATE_LIMIT",
+                    ) from exc
                 await asyncio.sleep(wait_seconds)
                 wait_seconds *= 2
             except Exception as exc:
-                raise RecombyneFetchError(f"Twitter fetch failed: {exc}") from exc
-        raise RecombyneFetchError("Twitter rate limit exceeded after retries.")
+                raise RecombyneFetchError(
+                    f"Twitter fetch failed: {exc}",
+                    code="TWITTER_FETCH_FAILED",
+                ) from exc
+        raise RecombynRateLimitError(
+            "Twitter rate limit exceeded after retries.",
+            retry_after=int(wait_seconds),
+            code="TWITTER_RATE_LIMIT",
+        )
 
     async def stream(self, query: str, callback) -> None:
         """Stream tweets for a query."""

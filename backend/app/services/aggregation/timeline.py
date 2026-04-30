@@ -4,8 +4,7 @@ from collections import Counter, defaultdict
 from datetime import datetime
 from typing import Literal
 
-from app.schemas.sentiment import (SentimentResult, TimelineBucket,
-                                   TimelineResult)
+from app.schemas.sentiment import SentimentResult, TimelineBucket, TimelineResult
 from app.services.ingestion.base import RawPost
 from app.services.scoring.engagement_weighter import EngagementWeighter
 

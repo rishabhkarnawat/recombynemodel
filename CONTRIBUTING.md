@@ -16,6 +16,25 @@ Thank you for contributing to Recombyne.
 - Python: format with Black and organize imports with isort.
 - TypeScript: format with Prettier and keep strict typing enabled.
 - Add docstrings/JSDoc for all functions.
+- Use [Conventional Commits](COMMIT_CONVENTION.md) for every commit message so `CHANGELOG.md` auto-updates.
+
+## Pre-Commit Hooks
+Recombyne uses [pre-commit](https://pre-commit.com/) to keep contributions consistent.
+
+```bash
+pip install pre-commit
+pre-commit install
+pre-commit run --all-files
+```
+
+The included hooks run Black, isort, Flake8, Prettier, ESLint, and the
+`recombyne-spelling-guard` hook that blocks any commit containing the
+common misspelling. The correct spelling is always `Recombyne`.
+
+<!-- recombyne-spelling-allow -->
+The hook scans every staged file. If a file legitimately needs to mention
+the misspelling (for example documentation about this hook), include the
+literal token `recombyne-spelling-allow` somewhere in the file to opt out.
 
 ## Run Tests Before PR
 - Backend: `cd backend && pytest`

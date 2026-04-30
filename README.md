@@ -38,6 +38,22 @@ The platform returns weighted summaries, top signals, timeline buckets, and dive
 
 Recombyne is BYOA by design. Read setup instructions in [`docs/byoa-setup.md`](docs/byoa-setup.md).
 
+## Running Without API Keys
+
+You can explore Recombyne end-to-end without any social API credentials by
+seeding the local instance with realistic mock data.
+
+```bash
+docker compose up backend
+python scripts/seed_topics.py
+python scripts/recombyne_cli.py history
+```
+
+`scripts/seed_topics.py` injects five themed topics (Waymo, Arc Browser,
+Kalshi, New Balance 1906R, Polymarket) into the local history store. The
+dashboard, watchlist, and CLI all read from this store, so contributors can
+iterate on UX, scoring, and weighting changes without any keys configured.
+
 ## Contributing
 
 We welcome pull requests for ingestion improvements, weighting research, visualization upgrades, and documentation clarity. Full workflow is documented in [`CONTRIBUTING.md`](CONTRIBUTING.md).

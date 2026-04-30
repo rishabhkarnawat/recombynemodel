@@ -2,11 +2,11 @@
 
 import { useState } from "react";
 import { postQuery } from "@/lib/api";
-import { QueryRequest, QueryResponse } from "@/lib/types";
+import type { QueryRequest, QueryResponse } from "@/lib/types";
 
 /**
  * Manage query execution state for dashboard interactions.
- * @returns Query state plus runQuery action.
+ * @returns Query state plus runQuery action and a setter for cached results.
  */
 export function useQuery() {
   const [data, setData] = useState<QueryResponse | null>(null);
@@ -30,5 +30,5 @@ export function useQuery() {
     }
   };
 
-  return { data, loading, error, runQuery };
+  return { data, loading, error, runQuery, setData };
 }

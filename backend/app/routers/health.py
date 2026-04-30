@@ -1,8 +1,12 @@
 """Health and key validation routes."""
 
 from app.config import settings
-from app.schemas.post import (HealthStatus, KeyValidationRequest,
-                              KeyValidationResponse, KeyValidationResult)
+from app.schemas.post import (
+    HealthStatus,
+    KeyValidationRequest,
+    KeyValidationResponse,
+    KeyValidationResult,
+)
 from app.services.ingestion.reddit import RedditIngester
 from app.services.ingestion.twitter import TwitterIngester
 from app.services.scoring.roberta import RoBERTaSentimentScorer

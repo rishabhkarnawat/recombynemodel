@@ -6,6 +6,16 @@ export interface EngagementMetrics {
   upvote_ratio: number | null;
 }
 
+export interface AuthorMetrics {
+  followers_count?: number | null;
+  following_count?: number | null;
+  tweet_count?: number | null;
+  account_age_days?: number | null;
+  verified?: boolean | null;
+  comment_karma?: number | null;
+  post_karma?: number | null;
+}
+
 export interface RawPost {
   id: string;
   source: "twitter" | "reddit";
@@ -14,6 +24,8 @@ export interface RawPost {
   created_at: string;
   url: string;
   raw_engagement: EngagementMetrics;
+  author_metrics?: AuthorMetrics | null;
+  is_english?: boolean | null;
   metadata: Record<string, unknown>;
 }
 
@@ -22,6 +34,9 @@ export interface SentimentResult {
   score: number;
   confidence: number;
   raw_logits: number[];
+  negation_detected?: boolean;
+  sarcasm_risk?: number;
+  is_english?: boolean;
 }
 
 export interface TopSignal {
@@ -29,6 +44,20 @@ export interface TopSignal {
   sentiment: SentimentResult;
   weight: number;
   signal_strength: number;
+}
+
+export interface DivergenceFlag {
+  type: "weighted_vs_raw" | "platform" | "temporal" | "volume";
+  severity: "low" | "medium" | "high";
+  explanation: string;
+}
+
+export interface CoMention {
+  entity: string;
+  mention_count: number;
+  weighted_mention_count: number;
+  avg_sentiment_when_mentioned: number;
+  sentiment_direction: "positive_association" | "negative_association" | "neutral";
 }
 
 export interface WeightedResult {
@@ -40,6 +69,8 @@ export interface WeightedResult {
   divergence_flag: boolean;
   divergence_direction: "weighted_positive" | "weighted_negative" | "aligned";
   top_signals: TopSignal[];
+  low_confidence_post_count?: number;
+  non_english_post_count?: number;
 }
 
 export interface TimelineBucket {
@@ -70,6 +101,8 @@ export interface QueryResponse {
   weighted_result: WeightedResult;
   timeline: TimelineBucket[];
   divergence_flags: string[];
+  structured_divergence_flags?: DivergenceFlag[];
+  co_mentions?: CoMention[];
   runtime_ms: number;
   queried_at: string;
 }
@@ -77,6 +110,47 @@ export interface QueryResponse {
 export interface CachedQueryResponse {
   found: boolean;
   query: QueryResponse | null;
+}
+
+export interface HistoryEntry {
+  id: string;
+  topic: string;
+  sources: string[];
+  window_hours: number;
+  raw_score: number;
+  weighted_score: number;
+  divergence: number;
+  divergence_flag: boolean;
+  post_count: number;
+  queried_at: string;
+  runtime_ms: number;
+}
+
+export interface HistoryResponse {
+  entries: HistoryEntry[];
+}
+
+export interface WatchlistEntry {
+  id: string;
+  topic: string;
+  sources: Array<"twitter" | "reddit">;
+  window_hours: number;
+  refresh_interval_minutes: number;
+  last_refreshed_at: string | null;
+  last_weighted_score: number | null;
+  delta_since_last: number | null;
+  created_at: string;
+}
+
+export interface WatchlistResponse {
+  entries: WatchlistEntry[];
+}
+
+export interface WatchlistEntryRequest {
+  topic: string;
+  sources: Array<"twitter" | "reddit">;
+  window_hours: number;
+  refresh_interval_minutes: number;
 }
 
 export interface KeyValidationRequest {

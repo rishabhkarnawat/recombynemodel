@@ -1,4 +1,4 @@
-"""Sentiment model and shared SQLAlchemy base."""
+"""Shared SQLAlchemy declarative base and sentiment model."""
 
 from sqlalchemy import Float, ForeignKey, String
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column

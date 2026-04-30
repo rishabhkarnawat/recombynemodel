@@ -5,7 +5,16 @@ from collections.abc import Callable
 from datetime import datetime
 from typing import Literal
 
+from app.utils.errors import RecombyneFetchError  # re-exported for ingesters
 from pydantic import BaseModel, Field
+
+__all__ = [
+    "AuthorMetrics",
+    "BaseIngester",
+    "EngagementMetrics",
+    "RawPost",
+    "RecombyneFetchError",
+]
 
 
 class EngagementMetrics(BaseModel):
@@ -18,6 +27,18 @@ class EngagementMetrics(BaseModel):
     upvote_ratio: float | None = Field(default=None, ge=0.0, le=1.0)
 
 
+class AuthorMetrics(BaseModel):
+    """Optional author signals used by the credibility scorer."""
+
+    followers_count: int | None = Field(default=None, ge=0)
+    following_count: int | None = Field(default=None, ge=0)
+    tweet_count: int | None = Field(default=None, ge=0)
+    account_age_days: int | None = Field(default=None, ge=0)
+    verified: bool | None = None
+    comment_karma: int | None = Field(default=None, ge=0)
+    post_karma: int | None = Field(default=None, ge=0)
+
+
 class RawPost(BaseModel):
     """Normalized raw social post representation across sources."""
 
@@ -28,11 +49,9 @@ class RawPost(BaseModel):
     created_at: datetime
     url: str
     raw_engagement: EngagementMetrics
+    author_metrics: AuthorMetrics | None = None
+    is_english: bool | None = None
     metadata: dict
-
-
-class RecombyneFetchError(Exception):
-    """Raised when ingestion cannot fetch data from a provider."""
 
 
 class BaseIngester(ABC):

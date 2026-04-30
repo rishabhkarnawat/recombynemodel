@@ -7,8 +7,13 @@ from datetime import datetime, timedelta, timezone
 
 import praw
 from app.config import settings
-from app.services.ingestion.base import (BaseIngester, EngagementMetrics,
-                                         RawPost, RecombyneFetchError)
+from app.services.ingestion.base import (
+    AuthorMetrics,
+    BaseIngester,
+    EngagementMetrics,
+    RawPost,
+)
+from app.utils.errors import RecombyneFetchError, RecombynKeyError
 from prawcore import PrawcoreException
 
 
@@ -37,10 +42,34 @@ class RedditIngester(BaseIngester):
         """Return configured Reddit client or raise."""
 
         if self._client is None:
-            raise RecombyneFetchError(
-                "Reddit credentials are missing. Set REDDIT_CLIENT_ID and REDDIT_CLIENT_SECRET in .env."
+            raise RecombynKeyError(
+                "Reddit credentials are missing. Set REDDIT_CLIENT_ID and REDDIT_CLIENT_SECRET in .env.",
+                code="REDDIT_KEY_MISSING",
             )
         return self._client
+
+    @staticmethod
+    def _build_author_metrics(submission) -> AuthorMetrics | None:
+        """Best-effort author metrics extraction without extra API calls."""
+
+        author = getattr(submission, "author", None)
+        if author is None:
+            return None
+        try:
+            comment_karma = int(getattr(author, "comment_karma", 0) or 0)
+            post_karma = int(getattr(author, "link_karma", 0) or 0)
+            created_utc = getattr(author, "created_utc", None)
+            age_days = None
+            if created_utc:
+                created = datetime.fromtimestamp(float(created_utc), tz=timezone.utc)
+                age_days = max(0, int((datetime.now(timezone.utc) - created).days))
+            return AuthorMetrics(
+                comment_karma=comment_karma,
+                post_karma=post_karma,
+                account_age_days=age_days,
+            )
+        except Exception:
+            return None
 
     async def fetch(self, query: str, window_hours: int, limit: int) -> list[RawPost]:
         """Fetch Reddit submissions and normalize output."""
@@ -53,9 +82,15 @@ class RedditIngester(BaseIngester):
                 lambda: list(subreddit.search(query=query, limit=limit, sort="new"))
             )
         except PrawcoreException as exc:
-            raise RecombyneFetchError(f"Reddit API request failed: {exc}") from exc
+            raise RecombyneFetchError(
+                f"Reddit API request failed: {exc}",
+                code="REDDIT_FETCH_FAILED",
+            ) from exc
         except Exception as exc:
-            raise RecombyneFetchError(f"Reddit fetch failed: {exc}") from exc
+            raise RecombyneFetchError(
+                f"Reddit fetch failed: {exc}",
+                code="REDDIT_FETCH_FAILED",
+            ) from exc
 
         posts: list[RawPost] = []
         for submission in submissions:
@@ -81,6 +116,8 @@ class RedditIngester(BaseIngester):
                             else None
                         ),
                     ),
+                    author_metrics=self._build_author_metrics(submission),
+                    is_english=None,
                     metadata={"subreddit": str(submission.subreddit)},
                 )
             )
